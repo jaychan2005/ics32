@@ -47,6 +47,7 @@ def run():
     
     # insert your solution code here
     routes = acorn_finder(tree, "", [])
+    count = len(routes)
     if count == 1:
         print(f"You have 1 acorn on your tree!")
     else:
@@ -64,7 +65,6 @@ def acorn_finder(map, routes, output):
     """
     Returns locations of acorns from tree.
     """
-    global count 
         
     for level in map:
         if type(level) == list:
@@ -79,7 +79,6 @@ def acorn_finder(map, routes, output):
             acorn_finder(level, routes, output)
         else:
             if level[4:] == '(acorn)':
-                count += 1
                 output.append(routes)
     
     return output
@@ -87,5 +86,4 @@ def acorn_finder(map, routes, output):
 
 if __name__ == "__main__":
     print("Welcome to PyAcornFinder! \n")
-    count = 0
     run()
