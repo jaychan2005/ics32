@@ -12,7 +12,7 @@ def is_int(val):
         int(val)
         return True
     except ValueError:
-        assert False, "Not a valid argument"
+        return False
 
 def save_note(note: str):
     # create path obj to notes storage file
@@ -46,7 +46,7 @@ def remove_note() -> str:
 
     # check if storage file exists, if not return.
     if not p.exists():
-        assert False, "'pynote.txt' does not exist'"
+        p.touch(exist_ok=True)
    
     print("Here are your notes: \n")
     # open and write user note to file
@@ -82,9 +82,15 @@ def remove_note() -> str:
     return removed_note
 
 def run():
+    assert is_int(3)
+    assert False == is_int('banana')
+    assert is_int(30.0)
+    assert is_int('5')
     note = input("Please enter a note (enter :d to delete a note or :q to exit):  ")
     if note == ":d":
         note = remove_note()
+        if note is None:
+            assert False, 'pynote.txt does not exist'
         print(f"The following note has been removed: \n\n {note}")
     elif note == ":q":
         return

@@ -1,3 +1,13 @@
+# a1.py
+
+# Starter code for assignment 1 in ICS 32 Programming with Software Libraries in Python
+
+# Replace the following placeholders with your information.
+
+# Jay Chan
+# jayc10@uci.edu
+# 54907952
+
 from pathlib import Path
 
     
@@ -56,7 +66,11 @@ def lcommand(command):
 
 def printlist(directory):
     for file in directory.iterdir():
-        print(file)
+        if file.is_file():
+            print(file)
+    for file in directory.iterdir():
+        if file.is_dir():
+            print(file)
 
 
 def roption(directory):
@@ -91,9 +105,8 @@ def roptione(directory, extension):
         if file.is_dir():
             roptione(file, extension)
         else:
-            subsections = str(file).split('\\')
-            subsection = subsections[-1].split('.')
-            if subsection[-1] == extension:
+            subsections = str(file).split('.')
+            if subsections[-1] == extension:
                 print(file)
                 
 
@@ -114,10 +127,49 @@ def soption(directory, name):
 def eoption(directory, extension):
     for file in directory.iterdir():
         if file.is_file():
-            subsections = str(file).split('\\')
-            subsection = subsections[-1].split('.')
-            if subsection[-1] == extension:
+            subsections = str(file).split('.')
+            if subsections[-1] == extension:
                 print(file)
+
+
+def ccommand(commandinput):
+    path = commandinput[1]
+    filename = commandinput[3] + '.dsu'
+    file_path = path + "/" + filename
+    Path(file_path).touch()
+
+
+def dcommand(commandinput):
+    path = dsu(commandinput)
+    delete = Path(path)
+    delete.unlink()
+    print(path + " DELETED")
+
+
+def rcommand(commandinput):
+    path = dsu(commandinput)
+    with open(path) as file:
+        output = file.read()
+        if output == "":
+            print("EMPTY")
+        else:
+            print(output)
+
+
+def dsu(command):
+    path = command[1]
+    filetype = path.split('.')
+    filetype = filetype[-1]
+    while True:
+        if filetype == 'dsu':
+            break
+        else:
+            print("ERROR")
+            command = input()
+            path = command[1]
+            filetype = path.split('.')
+            filetype = path[-1]
+    return path
 
 
 def program(command):
@@ -126,6 +178,15 @@ def program(command):
             break
         elif command[0] == 'L':
             lcommand(command)
+            break
+        elif command[0] == 'C':
+            ccommand(command)
+            break
+        elif command[0] == 'D':
+            dcommand(command)
+            break
+        elif command[0] == 'R':
+            rcommand(command)
             break
         else:
             command = input("Invalid command, please try again.\n").split()
