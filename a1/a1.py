@@ -40,7 +40,13 @@ def lcommand(command):
                 else:
                     invalid()
             else:
-                roption(myPath)
+                for file in myPath.iterdir():
+                    if file.is_file():
+                        print(file)
+                for file in myPath.iterdir():
+                    if file.is_dir():
+                        print(file)
+                        roption(file)
         elif command[2] == '-f':
             # Output only files, excluding directories in the results.
             try:
@@ -178,16 +184,16 @@ def program(command):
             break
         elif command[0] == 'L':
             lcommand(command)
-            break
+            command = input().split()
         elif command[0] == 'C':
             ccommand(command)
-            break
+            command = input().split()
         elif command[0] == 'D':
             dcommand(command)
-            break
+            command = input().split()
         elif command[0] == 'R':
             rcommand(command)
-            break
+            command = input().split()
         else:
             command = input("Invalid command, please try again.\n").split()
             
