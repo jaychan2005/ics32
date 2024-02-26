@@ -1,6 +1,6 @@
-# a2.py
+# a3.py
 
-# Starter code for assignment 2 in ICS 32 Programming with Software Libraries in Python
+# Starter code for assignment 3 in ICS 32 Programming with Software Libraries in Python
 
 # Replace the following placeholders with your information.
 
@@ -12,6 +12,7 @@ from pathlib import Path
 import Profile
 import ui
 import shlex
+import ds_client
 
 def ocommand(command):
     # load profile
@@ -30,19 +31,20 @@ def ecommand(command):
         multiple_commands(command)
     elif command[1] == '-usr':
         saves['username'] = command[2]
-        print(f'- - - - - - -\nUsername has been saved! You entered: {command[2]}\n')
         upload()
+        print(f'- - - - - - -\nUsername has been saved! You entered: {command[2]}\n')
     elif command[1] == '-pwd':
         saves['password'] = command[2]
-        print(f'- - - - - - -\nPassword has been saved! You entered: {command[2]}\n')
         upload()
+        print(f'- - - - - - -\nPassword has been saved! You entered: {command[2]}\n')
     elif command[1] == '-bio':
         saves['bio'] = command[2]
-        print(f'- - - - - - -\nBio has been saved! You entered: "{command[2]}"\n')
         bio()
+        print(f'- - - - - - -\nBio has been saved! You entered: "{command[2]}"\n')
     elif command[1] == '-addpost':
         add_post(command[2])
         print(f'- - - - - - -\nPost has been added! You entered: "{command[2]}"\n')
+        online(command[2])
     elif command[1] == '-delpost':
         del_post(command[2])
         print(f'- - - - - - -\nPost {command[2]} has been deleted!\n')
@@ -135,6 +137,7 @@ def admin(command):
         ui.invalid()
 
 def multiple_commands(command):
+    # recursive function
     if command[0] == 'E':
         commandnumber = (len(command) - 1) // 2
         for i in range(commandnumber):
@@ -173,7 +176,10 @@ def add_post(new_post):
     post = Profile.Post()
     post.set_entry(new_post)
     new_profile = Profile.Profile(saves['server'], saves['username'], saves['password'])
-    new_profile.bio = saves['bio']
+    try:
+        new_profile.bio = saves['bio']
+    except:
+        pass
     try: # load existing
         new_profile._posts = saves['_posts']
     except: # initialize
@@ -193,6 +199,20 @@ def del_post(index):
     saves['_posts'] = new_profile._posts # save into main file
     new_profile.save_profile(saves['server'])
     
+    
+def online(message):
+    answer = input("Would you like this to be posted on ICS 32 Distributed Social? (y/n): ")
+    if answer == 'y' or answer == 'Y':
+        server = "168.235.86.101"
+        port = 3021
+        try:
+            ds_client.send(server, port, saves['username'], saves['password'], message, saves['bio'])
+        except:
+            ds_client.send(server, port, saves['username'], saves['password'], message)
+    else:
+        print('n or incorrect format detected, will not post.')
+    
+
 if __name__ == "__main__":
     # startup
     print("Welcome to user interface!\n\nPlease format your commands in this manner:\n[COMMAND] [INPUT] [[-]OPTION] [INPUT]\n\nBegin with either command 'C' to create or command 'L' to load a dsu file:")

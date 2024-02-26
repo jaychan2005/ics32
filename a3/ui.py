@@ -1,6 +1,6 @@
 # ui.py
 
-# Starter code for assignment 2 in ICS 32 Programming with Software Libraries in Python
+# Imported from my assignment 2
 
 # Replace the following placeholders with your information.
 
