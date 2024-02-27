@@ -34,8 +34,7 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
       token = resp[2]
       
       if resp[0] == 'ok':
-        msg = message
-        msg = ds_protocol.post(token, msg)
+        msg = ds_protocol.post(token, message)
         client.sendall(msg.encode('utf-8'))
         # print response to post
         srv_msg = client.recv(4096)        
