@@ -46,5 +46,6 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
           srv_msg = client.recv(4096)        
           print("Response", srv_msg.decode('utf-8'))
     return True
-  except:
+  except Exception as error:
+    print("An error occurred: error")
     return False
