@@ -41,6 +41,8 @@ def ecommand(command):
         saves['bio'] = command[2]
         bio()
         print(f'- - - - - - -\nBio has been saved! You entered: "{command[2]}"\n')
+        msg = ''
+        online(msg)
     elif command[1] == '-addpost':
         add_post(command[2])
         print(f'- - - - - - -\nPost has been added! You entered: "{command[2]}"\n')
