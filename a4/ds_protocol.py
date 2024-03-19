@@ -47,10 +47,10 @@ def bio(token, entry):
   return json.dumps(bio_msg)
 
 
-def directmessage(token, entry):
+def directmessage(token, entry, recipient=None):
   timestamp = time.time()
   if entry == "new" or entry == "all":
     direct_msg = {"token": token, "directmessage": entry}
   else:
-    direct_msg = {"token": token, "directmessage": {"entry": entry, "recipient":"ohhimark", "timestamp": timestamp}}
+    direct_msg = {"token": token, "directmessage": {"entry": entry, "recipient": recipient, "timestamp": timestamp}}
   return json.dumps(direct_msg)

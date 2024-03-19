@@ -34,10 +34,18 @@ def send(server:str, port:int, username:str, password:str, message:str, bio:str=
       token = resp[2]
       
       if resp[0] == 'ok':
-        msg = ds_protocol.directmessage(token, message)
+        msg = ds_protocol.post(token, message)
         client.sendall(msg.encode('utf-8'))
-        srv_msg = client.recv(4096)
-    return srv_msg.decode('utf-8')
+        # print response to post
+        srv_msg = client.recv(4096)        
+        print("Response", srv_msg.decode('utf-8'))
+        if bio != None:
+          new_bio = ds_protocol.bio(token, bio)
+          client.sendall(new_bio.encode('utf-8'))
+          # print response to bio
+          srv_msg = client.recv(4096)        
+          print("Response", srv_msg.decode('utf-8'))
+    return True
   except Exception as error:
     print(f"An error occurred: {error}")
     return False

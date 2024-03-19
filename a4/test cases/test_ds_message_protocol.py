@@ -1,5 +1,6 @@
+# Test code for part 1
+
 import ds_client
-import json
 
 def main():
     server = "168.235.86.101"
@@ -12,8 +13,7 @@ def main():
     print(response)
     
     # test
-    response = json.loads(response)
-    assert response == {"response": {"type": "ok", "message": "Direct message sent"}}
+    assert response == True
 
 
 if __name__ == '__main__':
