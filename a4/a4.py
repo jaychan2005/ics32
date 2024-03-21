@@ -231,16 +231,21 @@ class MainApp(tk.Frame):
         self.body.entry_editor.config(state='normal')
         self.body.entry_editor.delete(1.0, tk.END)
         self.body.entry_editor.config(state='disabled')
-        try:
-            store = self.direct_messenger.retrieve_all()
-        except:
-            store = self.messages
-        for script in store:
-            if self.recipient == script['from']:
-                self.body.insert_contact_message("  " + str(script['message']) + "\n")
         new_profile = Profile.Profile(self.server, self.username, self.password)
         new_profile._contacts = self.contacts
-        new_profile.messages = self.messages
+        try: # wifi case
+            store = self.direct_messenger.retrieve_all()
+            online = Profile.Message()
+            online.set_entry(store)
+            for script in store:
+                if self.recipient == script['from']:
+                    self.body.insert_contact_message("  " + str(script['message']) + "\n")
+            new_profile.add_message(online)
+        except: # local case
+            store = self.messages
+            for script in store['entry']:
+                if self.recipient == script['from']:
+                    self.body.insert_contact_message("  " + str(script['message']) + "\n")
         new_profile.save_profile('save_file.dsu')
 
 
