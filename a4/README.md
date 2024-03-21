@@ -7,7 +7,7 @@ jayc10@uci.edu
 FILES:
 a4.py - run to load gui, main screen
 ds_messenger.py - functions for communication with server
-ds_protocol.py - receive response from server
+ds_protocol.py - receive response from server (taken from assignment 3)
 Profile.py - class definitions (taken from assignment 2)
 
 TESTING FILES:
