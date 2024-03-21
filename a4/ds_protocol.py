@@ -35,18 +35,6 @@ def join(username, password):
   return json.dumps(join_msg)
 
 
-def post(token, entry):
-  timestamp = time.time()
-  post_msg = {"token":token, "post": {"entry": entry,"timestamp": timestamp}}
-  return json.dumps(post_msg)
-
-
-def bio(token, entry):
-  timestamp = time.time()
-  bio_msg = {"token":token, "bio": {"entry": entry,"timestamp": timestamp}}
-  return json.dumps(bio_msg)
-
-
 def directmessage(token, entry, recipient=None):
   timestamp = time.time()
   if entry == "new" or entry == "all":

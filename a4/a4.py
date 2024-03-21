@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Text
+import ds_messenger
+import Profile
+from pathlib import Path
 
 
 class Body(tk.Frame):
@@ -26,15 +29,24 @@ class Body(tk.Frame):
         self._insert_contact_tree(id, contact)
 
     def _insert_contact_tree(self, id, contact: str):
-        if len(contact) > 25:
-            entry = contact[:24] + "..."
-        id = self.posts_tree.insert('', id, id, text=contact)
+        try:
+            if len(contact) > 25:
+                entry = contact[:24] + "..."
+            id = self.posts_tree.insert('', id, id, text=contact)
+        except:
+            pass
 
     def insert_user_message(self, message:str):
-        self.entry_editor.insert(1.0, message + '\n', 'entry-right')
+        self.entry_editor.config(state='normal')
+        self.entry_editor.insert(tk.END, message + '\n', 'entry-right')
+        self.entry_editor.see(tk.END)
+        self.entry_editor.config(state='disabled')
 
     def insert_contact_message(self, message:str):
-        self.entry_editor.insert(1.0, message + '\n', 'entry-left')
+        self.entry_editor.config(state='normal')
+        self.entry_editor.insert(tk.END, message + '\n', 'entry-left')
+        self.entry_editor.see(tk.END)
+        self.entry_editor.config(state='disabled')
 
     def get_text_entry(self) -> str:
         return self.message_editor.get('1.0', 'end').rstrip()
@@ -71,6 +83,7 @@ class Body(tk.Frame):
         self.entry_editor = tk.Text(editor_frame, width=0, height=5)
         self.entry_editor.tag_configure('entry-right', justify='right')
         self.entry_editor.tag_configure('entry-left', justify='left')
+        self.entry_editor.config(state='disabled', bg='black', fg='white', font=('Helvetica', 9), highlightbackground='white', highlightthickness=10)
         self.entry_editor.pack(fill=tk.BOTH, side=tk.LEFT,
                                expand=True, padx=0, pady=0)
 
@@ -93,13 +106,13 @@ class Footer(tk.Frame):
             self._send_callback()
 
     def _draw(self):
-        save_button = tk.Button(master=self, text="Send", width=20)
+        save_button = tk.Button(master=self, text="Send", width=20, command=self.send_click)
         # You must implement this.
         # Here you must configure the button to bind its click to
         # the send_click() function.
         save_button.pack(fill=tk.BOTH, side=tk.RIGHT, padx=5, pady=5)
 
-        self.footer_label = tk.Label(master=self, text="Ready.")
+        self.footer_label = tk.Label(master=self, text="ICS 32 Messenger")
         self.footer_label.pack(fill=tk.BOTH, side=tk.LEFT, padx=5)
 
 
@@ -130,6 +143,11 @@ class NewContactDialog(tk.simpledialog.Dialog):
         # such that when the user types, the only thing that appears are
         # * symbols.
         #self.password...
+        self.password_label = tk.Label(frame, width=30, text="Password")
+        self.password_label.pack()
+        self.password_entry = tk.Entry(frame, width=30, show='*')
+        self.password_entry.insert(tk.END, len(self.pwd) * '*')
+        self.password_entry.pack()
 
 
     def apply(self):
@@ -142,33 +160,89 @@ class MainApp(tk.Frame):
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.root = root
-        self.username = None
-        self.password = None
-        self.server = None
+        if Path('save_file.dsu').is_file():
+            profile = Profile.Profile()
+            profile.load_profile('save_file.dsu')
+            self.username = profile.username
+            self.password = profile.password
+            self.server = profile.server
+            self.contacts = profile._contacts
+            self.messages = profile.messages
+        else:
+            self.username = input("Please enter username: ")
+            self.password = input("Please enter password: ")
+            self.server = "168.235.86.101"
+            self.contacts = []
+            self.messages = None
         self.recipient = None
         # You must implement this! You must configure and
         # instantiate your DirectMessenger instance after this line.
         #self.direct_messenger = ... continue!
+        self.direct_messenger = ds_messenger.DirectMessenger(self.server, self.username, self.password)
 
         # After all initialization is complete,
         # call the _draw method to pack the widgets
         # into the root frame
         self._draw()
-        self.body.insert_contact("studentexw23") # adding one example student.
+        # self.body.insert_contact("jjjccc") # adding one example student.
+        # self.body.insert_contact("ILOVEKIMCHAEWON534912")
+        # self.body.insert_contact("SenZekken")
+        # load saved contacts
+        if self.contacts != None:
+            for contact in self.contacts:
+                self.body.insert_contact(contact['entry'])
+                
 
     def send_message(self):
         # You must implement this!
-        pass
+        store = self.body.get_text_entry()
+        self.direct_messenger.send(store, self.recipient)
+        self.publish(store)
 
     def add_contact(self):
         # You must implement this!
         # Hint: check how to use tk.simpledialog.askstring to retrieve
         # the name of the new contact, and then use one of the body
         # methods to add the contact to your contact list
-        pass
-
+        # CONTACTS
+        contact = tk.simpledialog.askstring('Add contact', 'Please enter contact name:')
+        self.body.insert_contact(contact)
+        upload = Profile.Contact()
+        upload.set_entry(contact)
+        new_profile = Profile.Profile(self.server, self.username, self.password)
+        # MESSAGES 
+        try:
+            messages = self.direct_messenger.retrieve_all()
+            online = Profile.Message()
+            online.set_entry(messages)
+            try:
+                new_profile._contacts = self.contacts
+                new_profile.messages = self.messages
+            except:
+                pass
+            new_profile.add_contact(upload)
+            new_profile.add_message(online)
+            new_profile.save_profile('save_file.dsu')
+        except:
+            print("Connection Error! Please connect to a stable internet connection.")
+    
     def recipient_selected(self, recipient):
         self.recipient = recipient
+        self.body.entry_editor.config(state='normal')
+        self.body.entry_editor.delete(1.0, tk.END)
+        self.body.entry_editor.config(state='disabled')
+        try:
+            store = self.direct_messenger.retrieve_all()
+        except:
+            store = self.messages
+        for script in store:
+            if self.recipient == script['from']:
+                self.body.insert_contact_message("  " + str(script['message']) + "\n")
+        new_profile = Profile.Profile(self.server, self.username, self.password)
+        new_profile._contacts = self.contacts
+        new_profile.messages = self.messages
+        new_profile.save_profile('save_file.dsu')
+
 
     def configure_server(self):
         ud = NewContactDialog(self.root, "Configure Account",
@@ -179,15 +253,35 @@ class MainApp(tk.Frame):
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
+        self.direct_messenger = ds_messenger.DirectMessenger(self.server, self.username, self.password)
 
     def publish(self, message:str):
         # You must implement this!
-        pass
+        self.body.entry_editor.config(state='normal')
+        self.body.insert_user_message(message + "  \n")
+        self.body.set_text_entry("")
+        self.body.entry_editor.config(state='disabled')
 
     def check_new(self):
         # You must implement this!
-        pass
-
+        try:
+            store = self.direct_messenger.retrieve_new()
+            for script in store:
+                if self.recipient == script['from']:
+                    self.body.insert_contact_message("  " + str(script['message']) + "\n")
+            self.root.after(3000, self.check_new)
+        except:
+            pass
+    
+    def new(self):
+        filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Plain Text (*.txt)", "*.txt"), ("All Files (*.*)", "*.*")])
+    
+    def open(self):
+        filedialog.askopenfilename()
+    
+    def close(self):
+        main.destroy()
+    
     def _draw(self):
         # Build a menu and add it to the root frame.
         menu_bar = tk.Menu(self.root)
@@ -195,9 +289,9 @@ class MainApp(tk.Frame):
         menu_file = tk.Menu(menu_bar)
 
         menu_bar.add_cascade(menu=menu_file, label='File')
-        menu_file.add_command(label='New')
-        menu_file.add_command(label='Open...')
-        menu_file.add_command(label='Close')
+        menu_file.add_command(label='New File...', command=self.new)
+        menu_file.add_command(label='Open File...', command=self.open)
+        menu_file.add_command(label='Exit', command=self.close)
 
         settings_file = tk.Menu(menu_bar)
         menu_bar.add_cascade(menu=settings_file, label='Settings')
@@ -245,8 +339,8 @@ if __name__ == "__main__":
     # behavior of the window changes.
     main.update()
     main.minsize(main.winfo_width(), main.winfo_height())
-    id = main.after(2000, app.check_new)
-    print(id)
+    id = main.after(3000, app.check_new)
+    print("ID:", id)
     # And finally, start up the event loop for the program (you can find
     # more on this in lectures of week 9 and 10).
     main.mainloop()

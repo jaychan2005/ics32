@@ -1,6 +1,6 @@
 # Test code for part 1
 
-import ds_client
+import test_client
 
 def main():
     server = "168.235.86.101"
@@ -9,7 +9,7 @@ def main():
     password = "opm"
     message = "message!"
 
-    response = ds_client.send(server, port, username, password, message)
+    response = test_client.send(server, port, username, password, message)
     print(response)
     
     # test
