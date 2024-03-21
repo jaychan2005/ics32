@@ -14,3 +14,7 @@ TESTING FILES:
 test_client.py - initial client, works along with test_ds_message_protocol.py (taken from assignment 2)
 test_ds_message_protocol.py - test code for part 1
 test_ds_messenger.py - test code for part 2
+
+VIDEOS:
+ics32videopt1 - demo steps 1 through 3
+ics32videopt2 - demo steps 4 through 6
